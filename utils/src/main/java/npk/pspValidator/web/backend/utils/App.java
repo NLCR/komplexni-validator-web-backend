@@ -3,12 +3,17 @@
  */
 package npk.pspValidator.web.backend.utils;
 
+import java.io.IOException;
+
 public class App {
     public String getGreeting() {
         return "Hello from Utils.";
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         System.out.println(new App().getGreeting());
+        Config.init();
+        Config config = Config.instanceOf();
+        System.out.println(config.toString());
     }
 }

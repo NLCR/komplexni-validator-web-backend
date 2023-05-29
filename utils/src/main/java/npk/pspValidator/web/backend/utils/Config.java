@@ -154,5 +154,28 @@ public class Config {
     public String getOauthGoogleClientId() {
         return oauthGoogleClientId;
     }
+
+    @Override
+    public String toString() {
+        return "Config: {\n" +
+                "validationMgrServiceUrl='" + validationMgrServiceUrl + '\'' +
+                ",\nvalidationMgrServiceDbUrl='" + validationMgrServiceDbUrl + '\'' +
+                ",\nvalidationMgrServiceDbLogin='" + validationMgrServiceDbLogin + '\'' +
+                ",\nvalidationMgrServiceDbPassword='" + validationMgrServiceDbPassword + '\'' +
+                ",\nquotasServiceUrl='" + quotasServiceUrl + '\'' +
+                ",\nquotasServiceDbUrl='" + quotasServiceDbUrl + '\'' +
+                ",\nquotasServiceDbLogin='" + quotasServiceDbLogin + '\'' +
+                ",\nquotasServiceDbPassword='" + quotasServiceDbPassword + '\'' +
+                ",\nusersServiceUrl='" + usersServiceUrl + '\'' +
+                ",\nusersServiceDbUrl='" + usersServiceDbUrl + '\'' +
+                ",\nusersServiceDbLogin='" + usersServiceDbLogin + '\'' +
+                ",\nusersServiceDbPassword='" + usersServiceDbPassword + '\'' +
+                ",\nuploadsServiceUrl='" + uploadsServiceUrl + '\'' +
+                ",\njobsExecutionService='" + jobsExecutionService + '\'' +
+                ",\nresultsService='" + resultsService + '\'' +
+                ",\nvalidationsWorkingDir=" + validationsWorkingDir +
+                ",\noauthGoogleClientId='" + oauthGoogleClientId + '\'' +
+                "\n}";
+    }
 }
 
