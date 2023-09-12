@@ -1,78 +1,28 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
+<!DOCTYPE web-app PUBLIC
+        "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+        "http://java.sun.com/dtd/web-app_2_3.dtd" >
 
+<web-app>
+
+    <display-name>Validation-manager service</display-name>
 
     <servlet>
         <servlet-name>jersey-serlvet</servlet-name>
         <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
-
-        <!--TODO: bud jersey.config.server.provider.packages, nebo jersey.config.server.provider.classnames, nebo javax.ws.rs.Application (a registrace tam),
-        neco se chyta i jen pres anotaci Provider, cele se to chova ruzne mezi minor verzemi jersey (2.25 a 2.26)
-        -->
-
+        <init-param>
+            <param-name>jersey.config.server.provider.packages</param-name>
+            <param-value>nkp.pspValidator.web.backend.validation_manager_service.jersey</param-value>
+        </init-param>
         <init-param>
             <param-name>javax.ws.rs.Application</param-name>
-            <param-value>npk.pspValidator.web.backend.validation_manager_service.jersey.Application</param-value>
+            <param-value>nkp.pspValidator.web.backend.validation_manager_service.jersey.Application</param-value>
         </init-param>
-
-        <!--<init-param>
-            <param-name>jersey.config.server.provider.packages</param-name>
-            <param-value>npk.pspValidator.web.api;npk.pspValidator.web.api.jersey;org.glassfish.jersey.media.multipart;</param-value>
-        </init-param>-->
-
-        <!--<init-param>
-            <param-name>jersey.config.server.provider.classnames</param-name>
-            <param-value>org.glassfish.jersey.filter.LoggingFilter;org.glassfish.jersey.media.multipart.MultiPartFeature</param-value>
-        </init-param>-->
-
-        <!-- <init-param>
-             <param-name>jersey.config.server.provider.classnames</param-name>
-             <param-value>npk.pspValidator.web.api.jersey.CorsFilter;npk.pspValidator.web.api.jersey.LoggingFilter;npk.pspValidator.web.api.QuotasServiceApi;org.glassfish.jersey.filter.LoggingFilter</param-value>
-         </init-param>-->
-
-        <!-- Register resources and providers under a package -->
-        <!-- <init-param>
-             <param-name>jersey.config.server.provider.packages</param-name>
-             <param-value>npk.pspValidator.web.api.jersey</param-value>
-         </init-param>-->
-
-        <!--TODO: disable in production-->
-        <!--<init-param>
-            <param-name>jersey.config.server.provider.classnames</param-name>
-            &lt;!&ndash;<param-value>org.glassfish.jersey.filter.LoggingFilter</param-value>&ndash;&gt;
-            <param-value>org.glassfish.jersey.filter.LoggingFilter;org.glassfish.jersey.media.multipart.MultiPartFeature</param-value>
-        </init-param>-->
-
-        <!--<init-param>
-            <param-name>jersey.config.server.trace</param-name>
-            <param-value>ALL</param-value>
-        </init-param>
-        <init-param>
-            <param-name>jersey.config.server.logging.verbosity</param-name>
-            <param-value>PAYLOAD_TEXT</param-value>
-        </init-param>-->
-
-        <!-- <init-param>
-             <param-name>jersey.config.server.provider.classnames</param-name>
-             <param-value>npk.pspValidator.web.api.jersey.CorsFilter;npk.pspValidator.web.api.jersey.LoggingFilter</param-value>
-         </init-param>-->
-
-        <!-- Register resources and providers under my.package. -->
-        <!-- <init-param>
-             <param-name>jersey.config.server.provider.packages</param-name>
-             <param-value>npk.pspValidator.web.api.jersey</param-value>
-         </init-param>-->
-
-        <!--<init-param>
-            <param-name>jersey.config.server.provider.classnames</param-name>
-            <param-value>org.glassfish.jersey.media.multipart.MultiPartFeature</param-value>
-        </init-param>-->
-
         <load-on-startup>1</load-on-startup>
     </servlet>
+
     <servlet-mapping>
         <servlet-name>jersey-serlvet</servlet-name>
-        <url-pattern>/*</url-pattern>
+        <url-pattern>/api/*</url-pattern>
     </servlet-mapping>
+
 </web-app>

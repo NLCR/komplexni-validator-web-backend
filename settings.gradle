@@ -10,12 +10,15 @@
 rootProject.name = 'komplexni-validator-web-backend-services-java'
 
 include 'utils'
-include 'quotas-service'
-include 'results-service'
-include 'users-service'
-include 'validation-manager-service'
+
 include 'job-execution-service'
+include 'notification-service'
+include 'quota-service'
+include 'result-service'
 include 'upload-service'
+include 'user-service'
+include 'validation-manager-service'
+
 include 'planner'
 
-//gradle -q projects
+include 'cli'

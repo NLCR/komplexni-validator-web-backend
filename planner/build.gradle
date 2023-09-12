@@ -34,5 +34,5 @@ dependencies {
 
 application {
     // Define the main class for the application
-    mainClassName = 'npk.pspValidator.web.backend.planner.App'
+    mainClassName = 'nkp.pspValidator.web.backend.planner.App'
 }

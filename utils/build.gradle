@@ -26,6 +26,11 @@ repositories {
     jcenter()
 }
 
+ext {
+    //jsonwebtokenVersion = '0.11.5'
+    jsonwebtokenVersion = '0.11.2'
+}
+
 dependencies {
     // This dependency is exported to consumers, that is to say found on their compile classpath.
     //api 'org.apache.commons:commons-math3:3.6.1'
@@ -37,18 +42,28 @@ dependencies {
     testImplementation 'junit:junit:4.12'
 
     implementation 'org.json:json:20220924'
+
+    //https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt
+    implementation "io.jsonwebtoken:jjwt-api:$jsonwebtokenVersion"
+    implementation "io.jsonwebtoken:jjwt-impl:$jsonwebtokenVersion"
+    implementation "io.jsonwebtoken:jjwt-gson:$jsonwebtokenVersion"
+    //compile 'com.google.api-client:google-api-client:1.32.1'
+    //compile 'com.google.api-client:google-api-client:2.1.1'
+
+    // https://mvnrepository.com/artifact/com.google.api-client/google-api-client
+    implementation 'com.google.api-client:google-api-client:2.1.1'
 }
 
 application {
     // Define the main class for the application
-    mainClassName = 'npk.pspValidator.web.backend.utils.App'
+    mainClassName = 'nkp.pspValidator.web.backend.utils.App'
 }
 
 jar {
     manifest {
         attributes(
                 'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
-                'Main-Class': 'npk.pspValidator.web.backend.utils.App'
+                'Main-Class': 'nkp.pspValidator.web.backend.utils.App'
         )
     }
 }

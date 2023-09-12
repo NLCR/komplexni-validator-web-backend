@@ -1,0 +1,5 @@
+jedeme jen pod javou 8, od 9 je tam nekompatibilita:
+https://github.com/highsource/jsonix-schema-compiler/issues/81
+
+./gradlew build v top-level projektu
+- vybuildi neco/buil/lib/kv-neco.war
