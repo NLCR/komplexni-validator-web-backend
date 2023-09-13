@@ -1,5 +1,6 @@
 package nkp.pspValidator.web.backend.cli;
 
+import nkp.pspValidator.web.backend.utils.auth.KeyBuilder;
 import org.apache.commons.cli.*;
 
 import java.io.File;
@@ -29,7 +30,7 @@ public class App {
                 .create());
 
         options.addOption(OptionBuilder
-                .withDescription(replaceUmlaut("Akce, která má být provedena. Povolené hodnoty jsou BUILD_MINIFIED_PACKAGE."))
+                .withDescription(replaceUmlaut("Akce, která má být provedena. Povolené hodnoty jsou BUILD_MINIFIED_PACKAGE a GENERATE_JWT_KEYS."))
                 .hasArg()
                 .withArgName("AKCE")
                 .withLongOpt(Params.ACTION)
@@ -109,6 +110,17 @@ public class App {
                             minifiedPspDir = new File(line.getOptionValue(Params.MINIFIED_PSP_DIR));
                             break;
                         }
+                    }
+                    case GENERATE_JWT_KEYS: {
+                        try {
+                            KeyBuilder keyBuilder = new KeyBuilder();
+                            String[] keys = keyBuilder.buildPublicPrivateKey();
+                            System.out.println("publicKey: \n" + keys[0]);
+                            System.out.println("privateKey: \n" + keys[1]);
+                        } catch (Exception e) {
+                            System.out.println("Chyba při generování klíčů: " + e.getMessage());
+                        }
+                        break;
                     }
                 }
 
@@ -283,10 +295,19 @@ public class App {
 
     private static void printHelp(Options options) {
         String header = replaceUmlaut("\n" +
+                "CLI pro podporu Webové verze Komplexního validátoru\n" +
+                "===================================================\n" +
+                "\n" +
+                "Generování JWT klíčů:\n" +
+                "----------------------------\n" +
+                "Bude vygenerována dvojice klíčů (soukromý a veřejný), které budou sloužit k podpisování a ověřování podpisů JWT tokenů vydávaných lokálně.\n" +
+                "Ty slouží k autentizaci vzájemného volání služeb mezi sebou.\n" +
+                "Vygenerované klíče je potřeba vložit do konfiguračního souboru (hodnoty jwt.local.private-key a jwt.local.public-key)\n" +
+                "\n" +
                 "Výroba minifikovaného balíku:\n" +
                 "----------------------------\n" +
-                "Bude vyrobena kopie balíku s tím, že textové a obrazové soubory budou nahrazny prázdnými soubory se stejným jménem." +
-                "\n\n");
+                "Bude vyrobena kopie balíku s tím, že textové a obrazové soubory budou nahrazny prázdnými soubory se stejným jménem.\n" +
+                "\n");
         String footer = replaceUmlaut("\n*Definice metadatových formátů. Více na http://www.ndk.cz/standardy-digitalizace/metadata.\n" +
                 "Více informací o validátoru najdete na https://github.com/NLCR/komplexni-validator.");
         HelpFormatter formatter = new HelpFormatter();
