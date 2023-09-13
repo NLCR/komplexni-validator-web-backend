@@ -149,5 +149,5 @@ gradle-app.setting
 *.hprof
 
 # End of https://www.toptal.com/developers/gitignore/api/gradle,java,intellij+all
-/src/main/resources/config-dev-localhost.properties
-/src/main/resources/config-dev-forpsi.properties
+/resources/config-dev-localhost.properties
+/resources/config-dev-forpsi.properties
