@@ -27,8 +27,8 @@ public class Config {
 
     public static void init() throws IOException {
         if (instance == null) {
-            Logger.getLogger(Config.class.getName()).info("initializing ");
             File propertiesFile = new File(System.getProperty("user.home") + File.separator + ".komplexni-validator" + File.separator + "/config.properties");
+            Logger.getLogger(Config.class.getName()).fine("initializing with " + propertiesFile.getAbsolutePath());
             instance = new Config(propertiesFile);
             //System.out.println(instance);
         }
@@ -77,43 +77,48 @@ public class Config {
 
 
     public Config(File propertiesFile) throws IOException {
-        InputStream input = new FileInputStream(propertiesFile);
-        Properties prop = new Properties();
-        prop.load(input);
-        this.validationMgrServiceUrl = prop.getProperty("validation-manager-service.url");
-        this.validationMgrServiceDbUrl = prop.getProperty("validation-manager-service.db.url");
-        this.validationMgrServiceDbLogin = prop.getProperty("validation-manager-service.db.login");
-        this.validationMgrServiceDbPassword = prop.getProperty("validation-manager-service.db.password");
+        try {
+            InputStream input = new FileInputStream(propertiesFile);
+            Properties prop = new Properties();
+            prop.load(input);
+            this.validationMgrServiceUrl = prop.getProperty("validation-manager-service.url");
+            this.validationMgrServiceDbUrl = prop.getProperty("validation-manager-service.db.url");
+            this.validationMgrServiceDbLogin = prop.getProperty("validation-manager-service.db.login");
+            this.validationMgrServiceDbPassword = prop.getProperty("validation-manager-service.db.password");
 
-        this.quotaServiceUrl = prop.getProperty("quota-service.url");
-        this.quotaServiceDbUrl = prop.getProperty("quota-service.db.url");
-        this.quotaServiceDbLogin = prop.getProperty("quota-service.db.login");
-        this.quotaServiceDbPassword = prop.getProperty("quota-service.db.password");
+            this.quotaServiceUrl = prop.getProperty("quota-service.url");
+            this.quotaServiceDbUrl = prop.getProperty("quota-service.db.url");
+            this.quotaServiceDbLogin = prop.getProperty("quota-service.db.login");
+            this.quotaServiceDbPassword = prop.getProperty("quota-service.db.password");
 
-        this.userServiceUrl = prop.getProperty("user-service.url");
-        this.userServiceDbUrl = prop.getProperty("user-service.db.url");
-        this.userServiceDbLogin = prop.getProperty("user-service.db.login");
-        this.userServiceDbPassword = prop.getProperty("user-service.db.password");
+            this.userServiceUrl = prop.getProperty("user-service.url");
+            this.userServiceDbUrl = prop.getProperty("user-service.db.url");
+            this.userServiceDbLogin = prop.getProperty("user-service.db.login");
+            this.userServiceDbPassword = prop.getProperty("user-service.db.password");
 
-        this.uploadServiceUrl = prop.getProperty("upload-service.url");
-        this.jobExecutionServiceUrl = prop.getProperty("job-execution-service.url");
-        this.jobExecutionServiceValidatorJar = prop.getProperty("job-execution-service.validator.jar");
-        this.jobExecutionServiceValidatorConfigDir = prop.getProperty("job-execution-service.validator.configDir");
+            this.uploadServiceUrl = prop.getProperty("upload-service.url");
+            this.jobExecutionServiceUrl = prop.getProperty("job-execution-service.url");
+            this.jobExecutionServiceValidatorJar = prop.getProperty("job-execution-service.validator.jar");
+            this.jobExecutionServiceValidatorConfigDir = prop.getProperty("job-execution-service.validator.configDir");
 
-        this.resultServiceUrl = prop.getProperty("result-service.url");
-        this.notificationServiceUrl = prop.getProperty("notification-service.url");
-        this.notificationServiceSenderEmail = prop.getProperty("notification-service.senderEmail");
-        this.notificationServiceFrontendBaseUrl = prop.getProperty("notification-service.frontendBaseUrl");
-        this.notificationServicePostmarkServerToken = prop.getProperty("notification-service.postmark.serverToken");
-        this.notificationServicePostmarkEnabled = Boolean.valueOf(prop.getProperty("notification-service.postmark.enabled"));
+            this.resultServiceUrl = prop.getProperty("result-service.url");
+            this.notificationServiceUrl = prop.getProperty("notification-service.url");
+            this.notificationServiceSenderEmail = prop.getProperty("notification-service.senderEmail");
+            this.notificationServiceFrontendBaseUrl = prop.getProperty("notification-service.frontendBaseUrl");
+            this.notificationServicePostmarkServerToken = prop.getProperty("notification-service.postmark.serverToken");
+            this.notificationServicePostmarkEnabled = Boolean.valueOf(prop.getProperty("notification-service.postmark.enabled"));
 
-        this.jwtLocalPrivateKey = prop.getProperty("jwt.local.private-key");
-        this.jwtLocalPublicKey = prop.getProperty("jwt.local.public-key");
-        this.jwGooglePublicKeysFile = prop.getProperty("jwt.google.public-keys-file");
-        this.oauthGoogleClientId = prop.getProperty("oauth.google.client-id");
+            this.jwtLocalPrivateKey = prop.getProperty("jwt.local.private-key");
+            this.jwtLocalPublicKey = prop.getProperty("jwt.local.public-key");
+            this.jwGooglePublicKeysFile = prop.getProperty("jwt.google.public-keys-file");
+            this.oauthGoogleClientId = prop.getProperty("oauth.google.client-id");
 
-        this.validationWorkingDir = new File(prop.getProperty("validation-working-dir"));
-        checkDir(this.validationWorkingDir);
+            this.validationWorkingDir = new File(prop.getProperty("validation-working-dir"));
+            checkDir(this.validationWorkingDir);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     private void checkDir(File dir) throws IOException {

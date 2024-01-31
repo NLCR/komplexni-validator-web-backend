@@ -4,7 +4,7 @@ PROJECT_HOME=$HOME/IdeaProjects/komplexni-validator-web-backend
 TOMCAT_HOME=$HOME/Software/tomcat
 
 echo "building"
-cd $PROJECT_HOME/services-java
+cd $PROJECT_HOME
 ./gradlew build
 
 services=(
@@ -21,6 +21,6 @@ services=(
 #iterate services and deploys them to tomcat
 for service in "${services[@]}"; do
   echo "deploying $service"
-  cp $PROJECT_HOME/services-java/$service/build/libs/kv-$service.war $TOMCAT_HOME/webapps/kv-$service.war
+  cp $PROJECT_HOME/$service/build/libs/kv-$service.war $TOMCAT_HOME/webapps/kv-$service.war
   sleep 5
 done
