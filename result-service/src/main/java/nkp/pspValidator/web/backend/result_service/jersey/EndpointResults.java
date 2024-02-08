@@ -70,6 +70,49 @@ public class EndpointResults {
     }
 
     @HEAD
+    @Path("{validationId}/clamav-log")
+    public Response checkClamavLogAvailable(@HeaderParam("Authorization") String authorizationHeader, @PathParam("validationId") String validationId) {
+        try {
+            checkValidationIdCorrect(validationId);
+            checkUserIsAdminOrValidationsOwner(authorizationHeader, validationId);
+            File logFile = new File(Config.instanceOf().getValidationWorkingDir(), validationId + File.separator + "clamav.log");
+            return logFile.exists() ? Response.ok().build() : Response.status(Response.Status.NOT_FOUND).build();
+        } catch (IncorrectValidationIdException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("not correct validation id: " + validationId).build();
+        } catch (AuthException e) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity(e.getMessageJson()).build();
+        } catch (ApiClientException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @GET
+    @Path("{validationId}/clamav-log")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response getClamavLog(@HeaderParam("Authorization") String authorizationHeader, @PathParam("validationId") String validationId, @DefaultValue("clamav-log.txt") @QueryParam("fileName") String fileName) {
+        try {
+            checkValidationIdCorrect(validationId);
+            checkUserIsAdminOrValidationsOwner(authorizationHeader, validationId);
+            File logFile = new File(Config.instanceOf().getValidationWorkingDir(), validationId + File.separator + "clamav.log");
+            if (!logFile.exists()) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+            InputStream logFileIs = new FileInputStream(logFile);
+            return Response.ok().entity(logFileIs)
+                    .header("Content-Disposition", "attachment; filename=\"" + fileName + "\"")
+                    .build();
+        } catch (IncorrectValidationIdException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("not correct validation id: " + validationId).build();
+        } catch (AuthException e) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity(e.getMessageJson()).build();
+        } catch (ApiClientException e) {
+            throw new RuntimeException(e);
+        } catch (FileNotFoundException e) {
+            return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
+        }
+    }
+
+    @HEAD
     @Path("{validationId}/execution-log")
     @Produces(MediaType.TEXT_PLAIN)
     public Response checkExecutionLogAvailable(@HeaderParam("Authorization") String authorizationHeader, @PathParam("validationId") String validationId) {

@@ -51,7 +51,7 @@ public class ExtractionJob extends Job {
             } catch (Throwable e) {
                 extractionOut.println("error extracting zip file: " + e.getMessage());
                 updateValidationState("ERROR");
-                e.printStackTrace();
+                //e.printStackTrace();
             }
         }).start();
     }
