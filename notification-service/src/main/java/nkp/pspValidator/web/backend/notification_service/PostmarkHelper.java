@@ -76,7 +76,7 @@ public class PostmarkHelper {
 
     public void sendValidationFinished(String recipientEmail, String validationId, String packageName, String status, Long durationS) throws EmailSenderException {
         String subject = "Validace dokončena";
-        System.out.println("durationS is null?" + (durationS == null));
+        //System.out.println("durationS is null?" + (durationS == null));
         String durationFormatted = durationS == null ? null : durationS + " sekund";
         String html = buildHtmlHeader(subject)
                 + "<p>Dobrý den,</p>\n"

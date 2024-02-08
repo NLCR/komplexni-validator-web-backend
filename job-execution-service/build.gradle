@@ -85,7 +85,7 @@ war {
     }
 }
 
-version '1.0.0'
+version '1.1.0'
 
 // Generate a properties file in build folder
 task generateVersionProperties {
