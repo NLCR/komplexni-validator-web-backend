@@ -59,7 +59,7 @@ public class ExecutionJob extends Job {
             List<String> dmfVersionParams = extractDmfVersionParams();
 
             List<String> command = new ArrayList<>();
-            command.add("java");
+            command.add(Config.instanceOf().getJobExecutionServiceValidatorJavaHome() + "/bin/java");
             command.add("-jar");
             command.add(Config.instanceOf().getJobExecutionServiceValidatorJar());
 

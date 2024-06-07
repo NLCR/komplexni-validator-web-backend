@@ -54,8 +54,12 @@ public class Config {
     private final String userServiceDbPassword;
 
     private final String uploadServiceUrl;
+    private final String uploadServiceJavaHome;
+    private final String uploadServiceJar;
+    private final String uploadServiceValidatorConfigDir;
 
     private final String jobExecutionServiceUrl;
+    private final String jobExecutionServiceValidatorJavaHome;
     private final String jobExecutionServiceValidatorJar;
     private final String jobExecutionServiceValidatorConfigDir;
 
@@ -97,7 +101,12 @@ public class Config {
             this.userServiceDbPassword = prop.getProperty("user-service.db.password");
 
             this.uploadServiceUrl = prop.getProperty("upload-service.url");
+            this.uploadServiceJavaHome = prop.getProperty("upload-service.validator.javaHome");
+            this.uploadServiceJar = prop.getProperty("upload-service.validator.jar");
+            this.uploadServiceValidatorConfigDir = prop.getProperty("upload-service.validator.configDir");
+
             this.jobExecutionServiceUrl = prop.getProperty("job-execution-service.url");
+            this.jobExecutionServiceValidatorJavaHome = prop.getProperty("job-execution-service.validator.javaHome");
             this.jobExecutionServiceValidatorJar = prop.getProperty("job-execution-service.validator.jar");
             this.jobExecutionServiceValidatorConfigDir = prop.getProperty("job-execution-service.validator.configDir");
 
@@ -188,10 +197,25 @@ public class Config {
         return uploadServiceUrl;
     }
 
+    public String getUploadServiceJavaHome() {
+        return uploadServiceJavaHome;
+    }
+
+    public String getUploadServiceJar() {
+        return uploadServiceJar;
+    }
+
+    public String getUploadServiceValidatorConfigDir() {
+        return uploadServiceValidatorConfigDir;
+    }
+
     public String getJobExecutionServiceUrl() {
         return jobExecutionServiceUrl;
     }
 
+    public String getJobExecutionServiceValidatorJavaHome() {
+        return jobExecutionServiceValidatorJavaHome;
+    }
 
     public String getJobExecutionServiceValidatorJar() {
         return jobExecutionServiceValidatorJar;
@@ -262,7 +286,13 @@ public class Config {
                 ",\nuserServiceDbLogin='" + userServiceDbLogin + '\'' +
                 ",\nuserServiceDbPassword='" + userServiceDbPassword + '\'' +
                 ",\nuploadServiceUrl='" + uploadServiceUrl + '\'' +
+                ",\nuploadServiceJavaHome='" + uploadServiceJavaHome + '\'' +
+                ",\nuploadServiceJar='" + uploadServiceJar + '\'' +
+                ",\nuploadServiceValidatorConfigDir='" + uploadServiceValidatorConfigDir + '\'' +
                 ",\njobExecutionServiceUrl='" + jobExecutionServiceUrl + '\'' +
+                ",\njobExecutionServiceValidatorJavaHome='" + jobExecutionServiceValidatorJavaHome + '\'' +
+                ",\njobExecutionServiceValidatorJar='" + jobExecutionServiceValidatorJar + '\'' +
+                ",\njobExecutionServiceValidatorConfigDir='" + jobExecutionServiceValidatorConfigDir + '\'' +
                 ",\nresultServiceUrl='" + resultServiceUrl + '\'' +
                 ",\nnotificationServiceUrl='" + notificationServiceUrl + '\'' +
                 ",\nnotificationServiceSenderEmail='" + notificationServiceSenderEmail + '\'' +
