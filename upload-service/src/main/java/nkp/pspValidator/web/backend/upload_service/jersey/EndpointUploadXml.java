@@ -10,16 +10,19 @@ import nkp.pspValidator.web.backend.utils.dao.Quotas;
 import nkp.pspValidator.web.backend.utils.dao.User;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
-@Path("/uploads")
-public class EndpointUploads {
+@Path("/upload-xml")
+public class EndpointUploadXml {
 
     private final AuthHelper authHelper = new AuthHelper();
     private QuotaServiceApi quotaServiceApi = new QuotaServiceApi();
@@ -28,13 +31,11 @@ public class EndpointUploads {
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createValidation(
+    public Response validateXml(
             @HeaderParam("Authorization") String authorizationHeader,
-            @FormDataParam("dmf-type") String dmfType,
-            @FormDataParam("preferred-dmf-version") String preferredDmfVersion,
-            @FormDataParam("forced-dmf-version") String forcedDmfVersion,
+            @FormDataParam("metadata-profile-id") String metadataProfileId,
             @FormDataParam("note") String note,
-            @FormDataParam("file") InputStream zipFile,
+            @FormDataParam("file") InputStream xmlFileStream,
             @FormDataParam("file") FormDataContentDisposition fileMetaData
     ) {
         User user;
@@ -53,28 +54,21 @@ public class EndpointUploads {
                 errorJson.put("error", "quotas reached");
                 return Response.status(Response.Status.FORBIDDEN).entity(errorJson.toString()).build();
             }
-            int priority = user.admin ? 1 : user.verified ? 2 : 3;
-            //check valid filename
-            String filename = fileMetaData.getFileName();
-            if (!filename.matches("^[a-zA-Z0-9_\\-\\.]+\\.zip$")) {
-                JSONObject errorJson = new JSONObject();
-                errorJson.put("error", "invalid filename");
-                return Response.status(Response.Status.BAD_REQUEST).entity(errorJson.toString()).build();
-            }
-
-            String validationId = UUID.randomUUID().toString();
-            File validationDir = new File(Config.instanceOf().getValidationWorkingDir(), validationId);
-            validationDir.mkdirs();
-            File validationZipFile = new File(validationDir, filename);
-            String packageName = filename.substring(0, filename.length() - ".zip".length());
-
             try {
-                int savedZipSizeMB = saveInputStreamToFile(zipFile, validationZipFile, quotas.maxUploadSizeMB);
-                validationManagerServiceApi.createValidation(validationId, user.id, packageName, savedZipSizeMB, dmfType, preferredDmfVersion, forcedDmfVersion, priority, note);
+                String validationId = UUID.randomUUID().toString();
+                File xmlFile = new File(Config.instanceOf().getUploadServiceValidatorTmpDir(), validationId + "-input.xml");
+                saveInputStreamToFile(xmlFileStream, xmlFile, quotas.maxUploadSizeMB);
+
                 JSONObject result = new JSONObject();
-                result.put("validation-id", validationId);
-                result.put("file-size-mb", savedZipSizeMB);
-                result.put("package-name", packageName);
+                //result.put("validation-id", validationId);
+                List<String> strings = executeValidation(xmlFile, validationId, metadataProfileId);
+                JSONArray messages = new JSONArray();
+                if (strings != null) {
+                    for (String string : strings) {
+                        messages.put(string);
+                    }
+                }
+                result.put("messages", messages);
                 return Response.ok(result.toString()).build();
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -141,10 +135,74 @@ public class EndpointUploads {
         }
     }
 
+    private List<String> readLinesFromFile(File file) throws IOException {
+        List<String> result = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                result.add(line);
+            }
+        }
+        return result;
+    }
+
     public class QuotaException extends Exception {
         public QuotaException(String message) {
             super(message);
         }
+    }
+
+    private List<String> executeValidation(File inputFile, String validationId, String metadataProfileId) {
+        try {
+            File workingDir = new File(Config.instanceOf().getUploadServiceValidatorTmpDir());
+            File logFileTxt = new File(workingDir, validationId + "-log.txt");
+
+            List<String> command = new ArrayList<>();
+
+            command.add(Config.instanceOf().getUploadServiceJavaHome() + "/bin/java");
+            command.add("-jar");
+            command.add(Config.instanceOf().getUploadServiceJar());
+
+            command.add("--action");
+            command.add("VALIDATE_METADATA_BY_PROFILE");
+
+            command.add("--config-dir");
+            command.add(Config.instanceOf().getUploadServiceValidatorConfigDir());
+
+            command.add("--metadata-profile-id");
+            command.add(metadataProfileId);
+
+            command.add("--metadata-file");
+            command.add(inputFile.getAbsolutePath());
+
+            ProcessBuilder processBuilder = new ProcessBuilder(command);
+            processBuilder.redirectOutput(logFileTxt);
+            processBuilder.redirectError(logFileTxt);
+            Process process = processBuilder.start();
+            process.waitFor(); // Wait for the process to complete
+            return readLinesFromFile(logFileTxt);
+        } catch (IOException | InterruptedException e) {
+            return getStackTraceAsList(e);
+        }
+    }
+
+    public static List<String> getStackTraceAsList(Exception e) {
+        List<String> stackTraceList = new ArrayList<>();
+
+        // Capture the stack trace as a String
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+        String stackTraceString = sw.toString();
+
+        // Split the stack trace string into individual lines
+        String[] lines = stackTraceString.split(System.lineSeparator());
+
+        // Add each line to the list, removing any tab characters
+        for (String line : lines) {
+            stackTraceList.add(line.replaceAll("\t", ""));
+        }
+        return stackTraceList;
     }
 
 }

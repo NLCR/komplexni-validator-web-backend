@@ -57,6 +57,7 @@ public class Config {
     private final String uploadServiceJavaHome;
     private final String uploadServiceJar;
     private final String uploadServiceValidatorConfigDir;
+    private final String uploadServiceValidatorTmpDir;
 
     private final String jobExecutionServiceUrl;
     private final String jobExecutionServiceValidatorJavaHome;
@@ -104,6 +105,7 @@ public class Config {
             this.uploadServiceJavaHome = prop.getProperty("upload-service.validator.javaHome");
             this.uploadServiceJar = prop.getProperty("upload-service.validator.jar");
             this.uploadServiceValidatorConfigDir = prop.getProperty("upload-service.validator.configDir");
+            this.uploadServiceValidatorTmpDir = prop.getProperty("upload-service.validator.tmpDir");
 
             this.jobExecutionServiceUrl = prop.getProperty("job-execution-service.url");
             this.jobExecutionServiceValidatorJavaHome = prop.getProperty("job-execution-service.validator.javaHome");
@@ -209,6 +211,10 @@ public class Config {
         return uploadServiceValidatorConfigDir;
     }
 
+    public String getUploadServiceValidatorTmpDir() {
+        return uploadServiceValidatorTmpDir;
+    }
+
     public String getJobExecutionServiceUrl() {
         return jobExecutionServiceUrl;
     }
@@ -289,6 +295,7 @@ public class Config {
                 ",\nuploadServiceJavaHome='" + uploadServiceJavaHome + '\'' +
                 ",\nuploadServiceJar='" + uploadServiceJar + '\'' +
                 ",\nuploadServiceValidatorConfigDir='" + uploadServiceValidatorConfigDir + '\'' +
+                ",\nuploadServiceValidatorTmpDir='" + uploadServiceValidatorTmpDir + '\'' +
                 ",\njobExecutionServiceUrl='" + jobExecutionServiceUrl + '\'' +
                 ",\njobExecutionServiceValidatorJavaHome='" + jobExecutionServiceValidatorJavaHome + '\'' +
                 ",\njobExecutionServiceValidatorJar='" + jobExecutionServiceValidatorJar + '\'' +
