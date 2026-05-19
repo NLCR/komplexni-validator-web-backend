@@ -1,13 +1,16 @@
 package nkp.pspValidator.web.backend.utils;
 
-
 import nkp.pspValidator.web.backend.utils.auth.AuthException;
 import nkp.pspValidator.web.backend.utils.auth.JwtManagerLocal;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -15,147 +18,168 @@ import java.nio.charset.StandardCharsets;
 public class HttpHelper {
 
     public static Response sendPostReturningJsonObject(String url, String body) throws IOException {
-        URL obj = new URL(url);
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-        con.setRequestMethod("POST");
-        con.setRequestProperty("Content-Type", "application/json");
-        con.setRequestProperty("Accept", "application/json");
-        con.setRequestProperty("Authorization", buildAuthorizationHeader());
-        con.setDoOutput(true);
-        con.setDoInput(true);
-        //write body data
-        try (OutputStream os = con.getOutputStream()) {
-            byte[] input = body.getBytes("utf-8");
-            os.write(input, 0, input.length);
-        }
-        //read response
-        int responseCode = con.getResponseCode();
-        if (responseCode >= 300) { //error
-            BufferedReader in = new BufferedReader(new InputStreamReader(con.getErrorStream()));
-            String inputLine;
-            StringBuffer response = new StringBuffer();
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
+        HttpURLConnection con = null;
+
+        try {
+            URL obj = new URL(url);
+            con = (HttpURLConnection) obj.openConnection();
+
+            con.setRequestMethod("POST");
+            con.setRequestProperty("Content-Type", "application/json");
+            con.setRequestProperty("Accept", "application/json");
+            con.setRequestProperty("Authorization", buildAuthorizationHeader());
+            con.setDoOutput(true);
+            con.setDoInput(true);
+
+            writeRequestBody(con, body);
+
+            int responseCode = con.getResponseCode();
+            String responseText = readResponseText(con, responseCode);
+
+            if (responseCode >= 300) {
+                return new Response(responseCode, null, buildErrorMessage(responseCode, responseText));
             }
-            in.close();
-            return new Response(responseCode, null, response.toString());
-        } else {
-            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            String inputLine;
-            StringBuffer response = new StringBuffer();
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
+
             try {
-                JSONObject object = new JSONObject(response.toString());
+                JSONObject object = new JSONObject(responseText);
                 return new Response(responseCode, object);
             } catch (JSONException e) {
-                e.printStackTrace();
                 return new Response(responseCode, null, e.getMessage());
+            }
+        } finally {
+            if (con != null) {
+                con.disconnect();
             }
         }
     }
 
-    public static Response sendPutReturningNothing(String url, String body) throws IOException {
-        URL obj = new URL(url);
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-        con.setRequestMethod("PUT");
-        con.setRequestProperty("Authorization", buildAuthorizationHeader());
-        con.setDoOutput(true);
-        //write body data
-        try (OutputStream os = con.getOutputStream()) {
-            byte[] input = body.getBytes("utf-8");
-            os.write(input, 0, input.length);
-        }
-        //read response
-        int responseCode = con.getResponseCode();
-        if (responseCode >= 300) { //error
-            BufferedReader in = new BufferedReader(new InputStreamReader(con.getErrorStream()));
-            String inputLine;
-            StringBuffer response = new StringBuffer();
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
+    public static Response sendPutReturningNothing(String url, String body, String contentType) throws IOException {
+        HttpURLConnection con = null;
+
+        try {
+            URL obj = new URL(url);
+            con = (HttpURLConnection) obj.openConnection();
+
+            con.setRequestMethod("PUT");
+            con.setRequestProperty("Content-Type", contentType);
+            con.setRequestProperty("Accept", "application/json");
+            con.setRequestProperty("Authorization", buildAuthorizationHeader());
+            con.setDoOutput(true);
+
+            writeRequestBody(con, body);
+
+            int responseCode = con.getResponseCode();
+            String responseText = readResponseText(con, responseCode);
+
+            if (responseCode >= 300) {
+                return new Response(responseCode, null, buildErrorMessage(responseCode, responseText));
             }
-            in.close();
-            return new Response(responseCode, null, response.toString());
-        } else {
+
             return new Response(responseCode, null);
+        } finally {
+            if (con != null) {
+                con.disconnect();
+            }
         }
     }
 
     public static Response sendGetReturningJsonArray(String url) throws IOException {
-        URL obj = new URL(url);
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-        con.setRequestMethod("GET");
-        con.setRequestProperty("Authorization", buildAuthorizationHeader());
-        int responseCode = con.getResponseCode();
-        if (responseCode >= 300) { //error
-            BufferedReader in = new BufferedReader(new InputStreamReader(con.getErrorStream()));
-            String inputLine;
-            StringBuffer response = new StringBuffer();
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
+        HttpURLConnection con = null;
+
+        try {
+            URL obj = new URL(url);
+            con = (HttpURLConnection) obj.openConnection();
+
+            con.setRequestMethod("GET");
+            con.setRequestProperty("Accept", "application/json");
+            con.setRequestProperty("Authorization", buildAuthorizationHeader());
+
+            int responseCode = con.getResponseCode();
+            String responseText = readResponseText(con, responseCode);
+
+            if (responseCode >= 300) {
+                return new Response(responseCode, null, buildErrorMessage(responseCode, responseText));
             }
-            in.close();
-            return new Response(responseCode, null, response.toString());
-        } else {
-            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            String inputLine;
-            StringBuffer response = new StringBuffer();
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
+
             try {
-                JSONArray array = new JSONArray(response.toString());
+                JSONArray array = new JSONArray(responseText);
                 return new Response(responseCode, array);
             } catch (JSONException e) {
                 return new Response(responseCode, null, e.getMessage());
+            }
+        } finally {
+            if (con != null) {
+                con.disconnect();
             }
         }
     }
 
     public static Response sendGetReturningJsonObject(String url) throws IOException {
-        URL obj = new URL(url);
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-        con.setRequestMethod("GET");
-        con.setRequestProperty("Authorization", buildAuthorizationHeader());
-        int responseCode = con.getResponseCode();
+        HttpURLConnection con = null;
 
+        try {
+            URL obj = new URL(url);
+            con = (HttpURLConnection) obj.openConnection();
+
+            con.setRequestMethod("GET");
+            con.setRequestProperty("Accept", "application/json");
+            con.setRequestProperty("Authorization", buildAuthorizationHeader());
+
+            int responseCode = con.getResponseCode();
+            String responseText = readResponseText(con, responseCode);
+
+            if (responseCode >= 300) {
+                return new Response(responseCode, null, buildErrorMessage(responseCode, responseText));
+            }
+
+            try {
+                JSONObject object = new JSONObject(responseText);
+                return new Response(responseCode, object);
+            } catch (JSONException e) {
+                return new Response(responseCode, null, e.getMessage());
+            }
+        } finally {
+            if (con != null) {
+                con.disconnect();
+            }
+        }
+    }
+
+    private static void writeRequestBody(HttpURLConnection con, String body) throws IOException {
+        try (OutputStream os = con.getOutputStream()) {
+            byte[] input = body.getBytes(StandardCharsets.UTF_8);
+            os.write(input, 0, input.length);
+        }
+    }
+
+    private static String readResponseText(HttpURLConnection con, int responseCode) throws IOException {
         InputStream stream = responseCode >= 300
                 ? con.getErrorStream()
                 : con.getInputStream();
 
-        String responseText = "";
+        if (stream == null) {
+            return "";
+        }
 
-        if (stream != null) {
-            try (BufferedReader in = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
-                StringBuilder response = new StringBuilder();
-                String inputLine;
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                responseText = response.toString();
+        StringBuilder response = new StringBuilder();
+
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+            String inputLine;
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
             }
         }
 
-        if (responseCode >= 300) {
-            return new Response(
-                    responseCode,
-                    null,
-                    responseText.isEmpty() ? "HTTP error " + responseCode + " without response body" : responseText
-            );
+        return response.toString();
+    }
+
+    private static String buildErrorMessage(int responseCode, String responseText) {
+        if (responseText == null || responseText.isEmpty()) {
+            return "HTTP error " + responseCode + " without response body";
         }
 
-        try {
-            JSONObject object = new JSONObject(responseText);
-            return new Response(responseCode, object);
-        } catch (JSONException e) {
-            return new Response(responseCode, null, e.getMessage());
-        } finally {
-            con.disconnect();
-        }
+        return responseText;
     }
 
     private static String buildAuthorizationHeader() {
@@ -176,20 +200,23 @@ public class HttpHelper {
             this.result = result;
         }
 
-        public boolean isOk() {
-            return responseCode < 300 && errorMessage == null;
-        }
-
         public Response(int responseCode, Object result, String errorMessage) {
             this.responseCode = responseCode;
             this.result = result;
             this.errorMessage = errorMessage;
         }
 
+        public boolean isOk() {
+            return responseCode < 300 && errorMessage == null;
+        }
+
         @Override
         public String toString() {
-            return "Response{" + "responseCode=" + responseCode + ", result=" + result + ", errorMessage='" + errorMessage + '\'' + '}';
+            return "Response{" +
+                    "responseCode=" + responseCode +
+                    ", result=" + result +
+                    ", errorMessage='" + errorMessage + '\'' +
+                    '}';
         }
     }
-
 }

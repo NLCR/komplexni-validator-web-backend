@@ -17,41 +17,52 @@ public class ExtractionJob extends Job {
     public void run() {
         new Thread(() -> {
             updateValidationState("EXTRACTING");
+
             File workingDir = new File(Config.instanceOf().getValidationWorkingDir(), validationId);
             workingDir.setReadable(true, false);
             workingDir.setExecutable(true, false);
+
             File extractionLogFile = new File(workingDir, "extraction.log");
-            PrintStream extractionOut = null;
-            try {
-                extractionOut = new PrintStream(extractionLogFile);
-                extractionOut.println("Extraction log for validation " + validationId);
-            } catch (IOException e) {
-                System.err.println("error initializing log file for extraction job: " + e.getMessage());
-                updateValidationState("ERROR");
-                return;
-            }
             File avLogFile = new File(workingDir, "clamav.log");
-            PrintStream avLogOut = null;
-            try {
-                avLogOut = new PrintStream(avLogFile);
-            } catch (IOException e) {
-                System.err.println("error initializing log file for extraction job (avLogOut): " + e.getMessage());
-                updateValidationState("ERROR");
-                return;
-            }
-            try {
-                //extraction
-                File extractedDir = extractZipFile(validationId, extractionOut);
-                //antivirus scan
-                extractionOut.println("Scanning extracted files by ClamAV...");
-                new ClamAvHelper().scanDirectory(extractedDir, avLogOut);
+
+            try (
+                    PrintStream extractionOut = new PrintStream(extractionLogFile);
+                    PrintStream avLogOut = new PrintStream(avLogFile)
+            ) {
+                extractionOut.println("Extraction log for validation " + validationId);
+                avLogOut.println("ClamAV log for validation " + validationId);
+
+                File extractedDir;
+
+                try {
+                    extractedDir = extractZipFile(validationId, extractionOut);
+                } catch (Throwable e) {
+                    extractionOut.println("Error extracting zip file: " + e.getMessage());
+                    e.printStackTrace(extractionOut);
+
+                    updateValidationState("ERROR");
+                    return;
+                }
+
+                try {
+                    extractionOut.println("Scanning extracted files by ClamAV...");
+                    avLogOut.println("Scanning extracted files by ClamAV...");
+
+                    new ClamAvHelper().scanDirectory(extractedDir, avLogOut);
+                } catch (Throwable e) {
+                    avLogOut.println("Error scanning extracted files by ClamAV: " + e.getMessage());
+                    e.printStackTrace(avLogOut);
+
+                    updateValidationState("ERROR");
+                    return;
+                }
+
                 //TODO: vytahnout z rozbaleneho baliku dalsi data (id baliku, etc) a ulozit do zaznamu Validace
                 updateValidationState("READY_FOR_EXECUTION");
-                extractionOut.close();
-            } catch (Throwable e) {
-                extractionOut.println("error extracting zip file: " + e.getMessage());
+
+            } catch (IOException e) {
+                System.err.println("Error initializing validation log files: " + e.getMessage());
                 updateValidationState("ERROR");
-                //e.printStackTrace();
             }
         }).start();
     }

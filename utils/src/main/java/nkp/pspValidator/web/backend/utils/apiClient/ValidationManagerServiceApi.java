@@ -77,7 +77,7 @@ public class ValidationManagerServiceApi {
             body.put("validationId", validationId);
             url = Config.instanceOf().getValidationMgrServiceUrl() + "/validations/" + validationId + "/state";
             //System.out.println(url);
-            HttpHelper.Response response = HttpHelper.sendPutReturningNothing(url, state);
+            HttpHelper.Response response = HttpHelper.sendPutReturningNothing(url, state, "text/plain; charset=utf-8");
             if (!response.isOk()) {
                 throw new ApiClientException(url, String.format("error updating state for validation %s to %s: %s: %s", validationId, state, response.responseCode, response.errorMessage));
             }
