@@ -19,6 +19,8 @@ import java.util.zip.ZipFile;
 
 public class App {
     public static void main(String[] args) {
+        //args = new String[] {"--action", "GENERATE_JWT_KEYS"};
+
         Options options = new Options();
         options.addOption(OptionBuilder
                 .withLongOpt(Params.HELP)
