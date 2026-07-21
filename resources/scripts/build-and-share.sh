@@ -56,7 +56,7 @@ done
 # ZIP (souhrnny balik se strukturou dist/kv-*.war; obsahuje jen vybrane sluzby)
 if [ "$SHARE_ZIP" = "true" ]; then
   zip_workdir="$PROJECT_HOME/build/share"
-  zip_name="komplexni-validator-backend.zip"
+  zip_name="komplexni-validator-web-backend.zip"
   rm -rf "$zip_workdir"
   mkdir -p "$zip_workdir/dist"
   for service in "${services[@]}"; do
