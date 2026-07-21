@@ -9,7 +9,7 @@ Backend webové verze Komplexního validátoru PSP balíčků (NKP). Gradle mult
 - Gradle wrapper 5.6.4 (součást repa, není třeba instalovat)
 - PostgreSQL (databáze pro quota-service, validation-manager-service a user-service)
 - Tomcat pro nasazení WAR souborů
-- ClamAV (clamd) pro antivirovou kontrolu nahraných balíčků
+- ClamAV (clamd) pro antivirovou kontrolu nahraných balíčků — instalace viz sekce [ClamAV](#clamav); lze vypnout konfigurací
 
 ## Moduly
 
@@ -53,6 +53,54 @@ Build a distribuci obstarávají skripty v `resources/scripts/`. Oba se konfigur
   ```
 
 Lokální (gitignored) adresář `.local/` může obsahovat stejnojmenné tenké wrappery, které jen nastaví proměnné prostředí a výběr služeb.
+
+## ClamAV
+
+Extrakční job skenuje rozbalené balíčky přes démona clamd, ke kterému se připojuje na `127.0.0.1:3310` (TCP; adresa a port jsou zatím natvrdo v `ExtractionJob.ClamAvHelper`). Sken lze vypnout klíčem `job-execution-service.clamav.enabled=false` (např. pro lokální vývoj); bez běžícího clamd jinak každá validace skončí ve stavu ERROR.
+
+### Instalace na macOS (Homebrew)
+
+```bash
+brew install clamav
+
+# konfigurace (brew --prefix: Apple Silicon /opt/homebrew, Intel /usr/local)
+cd "$(brew --prefix)/etc/clamav"
+sed 's/^Example/#Example/' freshclam.conf.sample > freshclam.conf
+{ sed 's/^Example/#Example/' clamd.conf.sample; echo "TCPSocket 3310"; echo "TCPAddr 127.0.0.1"; } > clamd.conf
+
+freshclam                    # stažení virové databáze (stovky MB, chvíli trvá)
+brew services start clamav   # spustí clamd jako službu (jednorázově lze i příkazem clamd)
+```
+
+### Instalace na Linux (Debian/Ubuntu)
+
+```bash
+sudo apt install clamav clamav-daemon   # virovou databázi stahuje služba clamav-freshclam automaticky
+```
+
+Pozor: clamav-daemon se na Debianu/Ubuntu spouští přes **systemd socket aktivaci** (`clamav-daemon.socket`) a v tom režimu clamd ignoruje `TCPSocket` v `/etc/clamav/clamd.conf` — od systemd dostane jen unix socket. TCP port se proto povoluje drop-inem socket jednotky:
+
+```bash
+sudo mkdir -p /etc/systemd/system/clamav-daemon.socket.d
+printf '[Socket]\nListenStream=127.0.0.1:3310\n' | sudo tee /etc/systemd/system/clamav-daemon.socket.d/tcp.conf
+sudo systemctl daemon-reload
+sudo systemctl restart clamav-daemon.socket clamav-daemon.service
+```
+
+(Kdyby clamd neběžel přes socket aktivaci, stačí klasicky přidat `TCPSocket 3310` a `TCPAddr 127.0.0.1` do `/etc/clamav/clamd.conf` a restartovat `clamav-daemon` — volby tam nesmí být duplicitně.)
+
+### Ověření
+
+```bash
+echo PING | nc 127.0.0.1 3310   # očekávaná odpověď: PONG
+```
+
+Když spojení selže (`Connection refused` v `clamav.log` validace):
+
+- `ss -ltn | grep 3310` — neposlouchá-li nic, clamd nemá zapnuté TCP (viz socket aktivace výše) nebo neběží.
+- `systemctl status clamav-daemon` + `journalctl -u clamav-daemon -n 20` — clamd odmítne nastartovat, dokud freshclam nestáhne virovou databázi (`/var/lib/clamav/main.cvd|cld` a `daily.cvd|cld` musí existovat); jednotka může být „enabled", a proces přesto hned po startu spadl.
+
+Pozn.: clamd běží pod vlastním uživatelem (`clamav`, na macOS podle způsobu spuštění), takže musí mít právo číst soubory ve `validation-working-dir` — extrakční job jim proto po rozbalení nastavuje čtení pro všechny.
 
 ## Konfigurace a provoz
 
