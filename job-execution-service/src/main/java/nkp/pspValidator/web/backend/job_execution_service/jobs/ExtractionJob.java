@@ -44,17 +44,22 @@ public class ExtractionJob extends Job {
                     return;
                 }
 
-                try {
-                    extractionOut.println("Scanning extracted files by ClamAV...");
-                    avLogOut.println("Scanning extracted files by ClamAV...");
+                if (Config.instanceOf().isJobExecutionServiceClamAvEnabled()) {
+                    try {
+                        extractionOut.println("Scanning extracted files by ClamAV...");
+                        avLogOut.println("Scanning extracted files by ClamAV...");
 
-                    new ClamAvHelper().scanDirectory(extractedDir, avLogOut);
-                } catch (Throwable e) {
-                    avLogOut.println("Error scanning extracted files by ClamAV: " + e.getMessage());
-                    e.printStackTrace(avLogOut);
+                        new ClamAvHelper().scanDirectory(extractedDir, avLogOut);
+                    } catch (Throwable e) {
+                        avLogOut.println("Error scanning extracted files by ClamAV: " + e.getMessage());
+                        e.printStackTrace(avLogOut);
 
-                    updateValidationState("ERROR");
-                    return;
+                        updateValidationState("ERROR");
+                        return;
+                    }
+                } else {
+                    extractionOut.println("ClamAV scanning disabled in configuration (job-execution-service.clamav.enabled), skipping.");
+                    avLogOut.println("ClamAV scanning disabled in configuration (job-execution-service.clamav.enabled), skipping.");
                 }
 
                 //TODO: vytahnout z rozbaleneho baliku dalsi data (id baliku, etc) a ulozit do zaznamu Validace

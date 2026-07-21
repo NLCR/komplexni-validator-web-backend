@@ -63,6 +63,7 @@ public class Config {
     private final String jobExecutionServiceValidatorJavaHome;
     private final String jobExecutionServiceValidatorJar;
     private final String jobExecutionServiceValidatorConfigDir;
+    private final boolean jobExecutionServiceClamAvEnabled;
 
     private final String resultServiceUrl;
 
@@ -111,6 +112,8 @@ public class Config {
             this.jobExecutionServiceValidatorJavaHome = prop.getProperty("job-execution-service.validator.javaHome");
             this.jobExecutionServiceValidatorJar = prop.getProperty("job-execution-service.validator.jar");
             this.jobExecutionServiceValidatorConfigDir = prop.getProperty("job-execution-service.validator.configDir");
+            //default true - kdyz klic v konfiguraci chybi, skenovat se musi
+            this.jobExecutionServiceClamAvEnabled = Boolean.parseBoolean(prop.getProperty("job-execution-service.clamav.enabled", "true"));
 
             this.resultServiceUrl = prop.getProperty("result-service.url");
             this.notificationServiceUrl = prop.getProperty("notification-service.url");
@@ -229,6 +232,10 @@ public class Config {
 
     public String getJobExecutionServiceValidatorConfigDir() {
         return jobExecutionServiceValidatorConfigDir;
+    }
+
+    public boolean isJobExecutionServiceClamAvEnabled() {
+        return jobExecutionServiceClamAvEnabled;
     }
 
     public String getResultServiceUrl() {
