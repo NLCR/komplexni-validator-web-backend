@@ -46,21 +46,21 @@ public class AuthHelper {
         if (userId.equals(Config.SYSTEM_USER_ID)) {
             return User.systemUser();
         } else {
-            throw new AuthException("this operation is allowed only for system users: " + getCaller());
+            throw insufficientPermissions("this operation is allowed only for system users: " + getCaller(), userId);
         }
     }
 
     public User authenticateAndExtractAdminUser(String authorizationHeader) throws AuthException {
         String userId = extractUserIdFromAuthHeader(authorizationHeader);
         if (userId.equals(Config.SYSTEM_USER_ID)) {
-            throw new AuthException("this operation is not allowed for system user: " + getCaller());
+            throw insufficientPermissions("this operation is not allowed for system user: " + getCaller(), userId);
         }
         try {
             User user = this.userServiceApi.getUser(userId);
             if (user.admin) {
                 return user;
             } else {
-                throw new AuthException("this operation is allowed only for admin users: " + getCaller());
+                throw insufficientPermissions("this operation is allowed only for admin users: " + getCaller(), userId);
             }
         } catch (ApiClientException e) {
             e.printStackTrace();
@@ -78,16 +78,22 @@ public class AuthHelper {
                 if (user.admin) {
                     return user;
                 } else {
-                    throw new AuthException("this operation is allowed only for admin or system users: " + getCaller());
+                    throw insufficientPermissions("this operation is allowed only for admin or system users: " + getCaller(), userId);
                 }
             } catch (ApiClientException e) {
                 e.printStackTrace();
                 throw new RuntimeException(e);
-            } catch (AuthException e) {
-                e.printStackTrace();
-                throw e;
             }
         }
+    }
+
+    /**
+     * Zamitnuti kvuli nedostatecnym pravum je bezny provozni stav, ne chyba -
+     * do logu patri jeden radek s identifikaci uzivatele, ne stacktrace.
+     */
+    private AuthException insufficientPermissions(String message, String userId) {
+        logger.warning(message + " (attempted by user: " + userId + ")");
+        return new AuthException(message);
     }
 
     private String getCaller() {
