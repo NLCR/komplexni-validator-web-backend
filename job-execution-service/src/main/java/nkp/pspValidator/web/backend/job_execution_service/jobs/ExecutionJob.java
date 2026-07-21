@@ -29,7 +29,7 @@ public class ExecutionJob extends Job {
                 out.println("Execution log for validation " + validationId);
             } catch (IOException e) {
                 System.err.println("error initializing log file for execution job: " + e.getMessage());
-                updateValidationState("ERROR");
+                updateValidationStateQuietly("ERROR");
                 return;
             }
             try {
@@ -43,12 +43,12 @@ public class ExecutionJob extends Job {
                     out.println("validation failed: validator return code " + returnCode
                             + ", xml protocol " + (xmlProtocol.isFile() ? "present" : "missing")
                             + " (see validation-log.txt)");
-                    updateValidationState("ERROR");
+                    updateValidationStateQuietly("ERROR");
                 }
                 out.close();
             } catch (Throwable e) {
                 out.println("error executing validation: " + e.getMessage());
-                updateValidationState("ERROR");
+                updateValidationStateQuietly("ERROR");
             }
         }).start();
     }

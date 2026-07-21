@@ -24,7 +24,7 @@ public class ArchivationJob extends Job {
                 out.println("Archivation log for validation " + validationId);
             } catch (IOException e) {
                 System.err.println("error initializing log file for archivation job: " + e.getMessage());
-                updateValidationState("ERROR");
+                updateValidationStateQuietly("ERROR");
                 return;
             }
             try {
@@ -33,7 +33,7 @@ public class ArchivationJob extends Job {
                 out.close();
             } catch (Throwable e) {
                 out.println("error archiving: " + e.getMessage());
-                updateValidationState("ERROR");
+                updateValidationStateQuietly("ERROR");
             }
         }).start();
     }

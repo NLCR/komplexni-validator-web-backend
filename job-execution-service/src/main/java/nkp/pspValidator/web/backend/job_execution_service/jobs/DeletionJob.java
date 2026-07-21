@@ -20,7 +20,7 @@ public class DeletionJob extends Job {
                 //deleteValidationFromDb();
                 updateValidationState("DELETED");
             } catch (Throwable e) {
-                updateValidationState("ERROR");
+                updateValidationStateQuietly("ERROR");
             }
         }).start();
     }

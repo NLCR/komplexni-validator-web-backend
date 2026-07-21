@@ -40,7 +40,7 @@ public class ExtractionJob extends Job {
                     extractionOut.println("Error extracting zip file: " + e.getMessage());
                     e.printStackTrace(extractionOut);
 
-                    updateValidationState("ERROR");
+                    updateValidationStateQuietly("ERROR");
                     return;
                 }
 
@@ -54,7 +54,7 @@ public class ExtractionJob extends Job {
                         avLogOut.println("Error scanning extracted files by ClamAV: " + e.getMessage());
                         e.printStackTrace(avLogOut);
 
-                        updateValidationState("ERROR");
+                        updateValidationStateQuietly("ERROR");
                         return;
                     }
                 } else {
@@ -67,7 +67,7 @@ public class ExtractionJob extends Job {
 
             } catch (IOException e) {
                 System.err.println("Error initializing validation log files: " + e.getMessage());
-                updateValidationState("ERROR");
+                updateValidationStateQuietly("ERROR");
             }
         }).start();
     }
