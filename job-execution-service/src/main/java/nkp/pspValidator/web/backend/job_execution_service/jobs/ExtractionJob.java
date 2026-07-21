@@ -79,8 +79,41 @@ public class ExtractionJob extends Job {
         File destDir = new File(workingDir, packageName);
         out.println(String.format("Extracting: %s -> %s", zipFile.getAbsolutePath(), destDir.getAbsolutePath()));
         new ZipHelper().unzip(zipFile, destDir);
+        flattenSingleWrapperDirs(destDir, out);
         out.println("Extraction finished");
         return destDir;
+    }
+
+    /*
+     * Nektere zipy maji obsah PSP balicku zabaleny v obalove slozce (klidne i vicenasobne).
+     * Obsah se vytahne primo do korene rozbaleneho adresare, aby validator nasel PRIMARY-METS.
+     */
+    private void flattenSingleWrapperDirs(File destDir, PrintStream out) throws IOException {
+        while (true) {
+            File[] entries = destDir.listFiles();
+            if (entries == null || entries.length != 1 || !entries[0].isDirectory()) {
+                return;
+            }
+            File wrapper = entries[0];
+            out.println(String.format("Package content wrapped in single directory '%s', moving its content one level up", wrapper.getName()));
+            //prejmenovani obalu na docasny nazev kvuli mozne kolizi jmen (obal muze obsahovat stejnojmennou polozku)
+            File tmp = new File(destDir, wrapper.getName() + ".unwrapping.tmp");
+            if (!wrapper.renameTo(tmp)) {
+                throw new IOException("failed to rename " + wrapper.getAbsolutePath() + " to " + tmp.getAbsolutePath());
+            }
+            File[] children = tmp.listFiles();
+            if (children != null) {
+                for (File child : children) {
+                    File target = new File(destDir, child.getName());
+                    if (!child.renameTo(target)) {
+                        throw new IOException("failed to move " + child.getAbsolutePath() + " to " + target.getAbsolutePath());
+                    }
+                }
+            }
+            if (!tmp.delete()) {
+                throw new IOException("failed to delete empty wrapper dir " + tmp.getAbsolutePath());
+            }
+        }
     }
 
     private static class ZipHelper {

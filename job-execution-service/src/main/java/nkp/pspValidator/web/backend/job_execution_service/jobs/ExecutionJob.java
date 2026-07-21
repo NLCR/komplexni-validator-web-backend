@@ -34,9 +34,15 @@ public class ExecutionJob extends Job {
             }
             try {
                 int returnCode = executeValidation(validationId, out);
-                if (returnCode == 0) {
+                //validator muze selhat i s navratovym kodem 0 (napr. nenajde PRIMARY-METS),
+                //proto se uspech pozna az podle existence xml protokolu
+                File xmlProtocol = new File(Config.instanceOf().getValidationWorkingDir(), validationId + File.separator + "validation-log.xml");
+                if (returnCode == 0 && xmlProtocol.isFile() && xmlProtocol.length() > 0) {
                     updateValidationState("FINISHED");
                 } else {
+                    out.println("validation failed: validator return code " + returnCode
+                            + ", xml protocol " + (xmlProtocol.isFile() ? "present" : "missing")
+                            + " (see validation-log.txt)");
                     updateValidationState("ERROR");
                 }
                 out.close();
@@ -86,8 +92,9 @@ public class ExecutionJob extends Job {
             command.addAll(dmfVersionParams);
 
             ProcessBuilder processBuilder = new ProcessBuilder(command);
+            //stderr se musi slit do stdout; dve nezavisla presmerovani do tehoz souboru se vzajemne prepisuji
+            processBuilder.redirectErrorStream(true);
             processBuilder.redirectOutput(logFileTxt);
-            processBuilder.redirectError(logFileTxt);
             Process process = processBuilder.start();
             return process.waitFor(); // Wait for the process to complete
         } catch (IOException | InterruptedException e) {
