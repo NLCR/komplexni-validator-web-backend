@@ -52,6 +52,10 @@ dependencies {
 
     // https://mvnrepository.com/artifact/com.google.api-client/google-api-client
     implementation 'com.google.api-client:google-api-client:2.1.1'
+
+    //JAX-RS API jen pro kompilaci (LastModifiedSanitizingFilter), za behu ho dodava Jersey v jednotlivych sluzbach
+    compileOnly 'javax.ws.rs:javax.ws.rs-api:2.0.1'
+    compileOnly 'javax.annotation:javax.annotation-api:1.2'
 }
 
 application {
