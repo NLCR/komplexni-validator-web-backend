@@ -60,6 +60,6 @@ Lokální (gitignored) adresář `.local/` může obsahovat stejnojmenné tenké
   - `resources/config.properties` – produkce (hodnoty `CHANGEME` je nutné doplnit)
   - `resources/config-dev-localhost.properties` – lokální vývoj
 - Konfigurují se: URL služeb (`<service>.url`), DB přístupy (`<service>.db.*`), cesty k externímu validátoru (`*.validator.{javaHome,jar,configDir,tmpDir}`), JWT klíče (`jwt.local.*` – vygeneruj přes `cli` akcí `GENERATE_JWT_KEYS`), Google OAuth (`oauth.google.client-id`, `jwt.google.public-keys-file` – stažení klíčů viz `resources/scripts/fetch-google-oauth2-keys.sh`), Postmark (`notification-service.postmark.*`) a `validation-working-dir`.
-- Inicializace databází: `resources/init_db.sql` (vytvoří uživatele `validator` a databáze `kv_quota_service`, `kv_validation_mgr_service`, `kv_user_service`). JDBC driver: `resources/postgresql-42.7.10.jar`.
+- Inicializace a migrace databází: `resources/init_db.sql` (vytvoří uživatele `validator` a databáze `kv_quota_service`, `kv_validation_mgr_service`, `kv_user_service`). Skript je idempotentní — opakované spuštění doplní chybějící databáze, tabulky, sloupce i výchozí řádky kvót a existující data nemaže ani nepřepisuje, takže se používá i pro aktualizaci schématu na starších instalacích: `psql -d postgres -f resources/init_db.sql` (jako postgres superuser). JDBC driver: `resources/postgresql-42.7.10.jar`.
 - `planner` je potřeba spouštět periodicky (např. cronem), jinak se joby nespouští.
 - Root endpoint každé služby zobrazuje název, verzi, uptime a přehled URL ostatních služeb.
