@@ -1,6 +1,7 @@
 package nkp.pspValidator.web.backend.result_service.jersey;
 
 import nkp.pspValidator.web.backend.utils.Config;
+import nkp.pspValidator.web.backend.utils.jersey.CorsFilter;
 import nkp.pspValidator.web.backend.utils.jersey.LastModifiedSanitizingFilter;
 import org.glassfish.jersey.server.ResourceConfig;
 
@@ -16,6 +17,7 @@ public class Application extends ResourceConfig {
         //register(LoggingFilter.class);
         //filtr z utils neni pokryty package scanningem (jersey.config.server.provider.packages), proto explicitni registrace
         register(LastModifiedSanitizingFilter.class);
+        register(CorsFilter.class);
         Config.init();
     }
 }
