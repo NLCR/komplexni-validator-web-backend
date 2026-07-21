@@ -48,7 +48,7 @@ public class Scheduler {
                     List<JSONObject> validations = selectValidationsForDeletion(counters.readyForDeletion, slots);
                     for (JSONObject validation : validations) {
                         String validationId = validation.getString("id");
-                        validationManagerServiceApi.updateValidationState(validationId, "T0_BE_DELETED");
+                        validationManagerServiceApi.updateValidationState(validationId, "TO_BE_DELETED");
                         log("scheduling DELETION job for " + validationId);
                         jobExecutionServiceApi.scheduleJob("deletion", validationId);
                         activeJobs++;
@@ -88,7 +88,7 @@ public class Scheduler {
 
             //schedule EXTRACTION jobs
             if (activeJobs < quotas.maxParallelJobs) {
-                if (counters.readyForExtraction.size() > 0 && counters.executionInProgress < quotas.maxParallelExtractionJobs) {
+                if (counters.readyForExtraction.size() > 0 && counters.extractionInProgress < quotas.maxParallelExtractionJobs) {
                     int slots = Math.min(quotas.maxParallelJobs - activeJobs, quotas.maxParallelExtractionJobs);
                     List<JSONObject> validations = selectValidationsForExtraction(counters.readyForExtraction, slots);
                     for (JSONObject validation : validations) {

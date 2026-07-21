@@ -57,12 +57,14 @@ public class Application extends ResourceConfig {
         @Override
         public void run() {
             //System.out.println("running Scheduler!");
+            //scheduleAtFixedRate pri neodchycene vyjimce potichu zrusi vsechna dalsi spusteni,
+            //proto se tady musi chytit uplne vsechno - jedna vadna iterace nesmi zabit planner
             try {
                 Config.init();
                 Scheduler scheduler = new Scheduler();
                 scheduler.run();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            } catch (Exception e) {
+                logger.log(java.util.logging.Level.SEVERE, "scheduler iteration failed", e);
             }
             /*try {
                 Thread.sleep(new Random().nextInt(5000));
