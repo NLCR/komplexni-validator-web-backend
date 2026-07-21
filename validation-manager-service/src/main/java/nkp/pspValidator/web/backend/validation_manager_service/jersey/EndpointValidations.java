@@ -84,7 +84,7 @@ public class EndpointValidations {
                     case "TO_BE_ARCHIVED":
                     case "ARCHIVING":
                     case "ARCHIVED":
-                    case "T0_BE_DELETED":
+                    case "TO_BE_DELETED":
                     case "DELETING":
                         validationsInactive += validations;
                         break;
@@ -325,7 +325,7 @@ public class EndpointValidations {
                     } else {
                         return incorrectStateChange(validation.id, oldState, newState);
                     }
-                case T0_BE_DELETED:
+                case TO_BE_DELETED:
                     if (oldState == ValidationState.ARCHIVED) {
                         validationDatabase.updateValidation(validation
                                 .withState(newState));
@@ -334,7 +334,7 @@ public class EndpointValidations {
                         return incorrectStateChange(validation.id, oldState, newState);
                     }
                 case DELETING:
-                    if (oldState == ValidationState.T0_BE_DELETED) {
+                    if (oldState == ValidationState.TO_BE_DELETED) {
                         validationDatabase.updateValidation(validation
                                 .withState(newState));
                         return Response.ok().build();

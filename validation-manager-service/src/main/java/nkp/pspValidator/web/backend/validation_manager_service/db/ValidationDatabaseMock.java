@@ -23,7 +23,7 @@ public class ValidationDatabaseMock implements ValidationDatabase {
         result.add(new Validation("c81a1a83-063e-4fa0-88bc-9c62382d84cc", "3", 2, ValidationState.TO_BE_ARCHIVED));
         result.add(new Validation("64eb12c9-5b9d-416c-a6fb-d50ffaa69355", "3", 2, ValidationState.ARCHIVING));
         result.add(new Validation("f32f8775-80de-41e1-b368-481035b12358", "3", 2, ValidationState.ARCHIVED));
-        result.add(new Validation("686edf9c-d721-45a1-91b2-da9eb6cc36c5", "3", 2, ValidationState.T0_BE_DELETED));
+        result.add(new Validation("686edf9c-d721-45a1-91b2-da9eb6cc36c5", "3", 2, ValidationState.TO_BE_DELETED));
         result.add(new Validation("102fd584-dd59-46e3-9d9e-ea1029818741", "3", 2, ValidationState.DELETING));
         result.add(new Validation("87d5ee48-0467-4212-82e6-56d10f01f13a", "3", 2, ValidationState.DELETED));*/
         return result;

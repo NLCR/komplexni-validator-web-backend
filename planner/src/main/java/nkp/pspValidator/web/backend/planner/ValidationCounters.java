@@ -91,7 +91,7 @@ class ValidationCounters {
                     }
                 }
                 break;
-                case "T0_BE_DELETED":
+                case "TO_BE_DELETED":
                 case "DELETING":
                     deletionInProgress++;
                     break;

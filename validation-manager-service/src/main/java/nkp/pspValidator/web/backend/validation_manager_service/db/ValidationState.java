@@ -17,7 +17,7 @@ public enum ValidationState {
     ARCHIVING, //probiha mazani dat baliku
     ARCHIVED, //data baliku smazana, logy zustavaji
 
-    T0_BE_DELETED, //ValidationMgr oznacil, ze se muze smazat kompletni zaznam validace (logy, db?)
+    TO_BE_DELETED, //ValidationMgr oznacil, ze se muze smazat kompletni zaznam validace (logy, db?)
     DELETING, //maze se zaznam validace
     DELETED //uchovany jen zaznamy v db, pracovni adresar vcetne logu smazan
 
