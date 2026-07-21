@@ -38,20 +38,21 @@ Spouštět v top-level projektu **pod Javou 8**. Každý servisní modul vybuild
 
 ## Distribuce
 
-Aktuální postup po buildu – WAR soubory se nakopírují do `dist/`, zabalí a nahrají do veřejné Dropbox složky:
+Build a distribuci obstarávají skripty v `resources/scripts/`. Oba se konfigurují přes proměnné prostředí, buildí jen vybrané moduly a podmnožinu služeb berou jako argumenty (bez argumentů vezmou všechny):
 
-```bash
-cp job-execution-service/build/libs/kv-job-execution-service.war dist
-cp user-service/build/libs/kv-user-service.war dist
-cp quota-service/build/libs/kv-quota-service.war dist
-zip -r komplexni-validator-backend.zip dist
+- **`build-and-deploy.sh`** — build a nasazení WAR do `$TOMCAT_HOME/webapps` (povinně `TOMCAT_HOME`, volitelně `SLEEP_BETWEEN_DEPLOYS`):
 
-cp komplexni-validator-backend.zip ~/Dropbox/Public/installers
-```
+  ```bash
+  TOMCAT_HOME=~/Software/tomcat9 resources/scripts/build-and-deploy.sh quota-service user-service
+  ```
 
-(Do zipu se aktuálně balí jen služby, které se právě distribuují; podle potřeby doplň další WAR z `*/build/libs/`.)
+- **`build-and-share.sh`** — build a nakopírování WAR do sdílené složky, typicky veřejného Dropboxu (povinně `DROPBOX_INSTALLERS`). Navíc tam nahraje i souhrnný `komplexni-validator-backend.zip` (struktura `dist/kv-*.war`, jen vybrané služby) — vypne se pomocí `SHARE_ZIP=false`:
 
-Alternativně lze pro nasazení přímo na server použít `resources/scripts/deploy_all.sh`, který provede build a nakopíruje všechny WAR do `$TOMCAT_HOME/webapps`.
+  ```bash
+  DROPBOX_INSTALLERS=~/Dropbox/Public/installers resources/scripts/build-and-share.sh
+  ```
+
+Lokální (gitignored) adresář `.local/` může obsahovat stejnojmenné tenké wrappery, které jen nastaví proměnné prostředí a výběr služeb.
 
 ## Konfigurace a provoz
 
