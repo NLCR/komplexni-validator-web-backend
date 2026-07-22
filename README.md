@@ -89,6 +89,18 @@ sudo systemctl restart clamav-daemon.socket clamav-daemon.service
 
 (Kdyby clamd neběžel přes socket aktivaci, stačí klasicky přidat `TCPSocket 3310` a `TCPAddr 127.0.0.1` do `/etc/clamav/clamd.conf` a restartovat `clamav-daemon` — volby tam nesmí být duplicitně.)
 
+Dále musí mít clamd právo číst `validation-working-dir`. Soubory validací chmoduje backend sám, ale je potřeba zajistit:
+
+1. **průchod nadřazenými adresáři** — všechny adresáře nad `validation-working-dir` musí mít pro ostatní `x` (`chmod o+x …`),
+2. **AppArmor** — profil `/usr/sbin/clamd` na Debianu/Ubuntu čtení mimo standardní cesty blokuje (`Access denied. ERROR` v `clamav.log`, v `journalctl -k` záznamy `apparmor="DENIED" … profile="/usr/sbin/clamd"`). Povolení přes lokální override:
+
+   ```bash
+   echo '/data/validation-working-dir/** r,' | sudo tee -a /etc/apparmor.d/local/usr.sbin.clamd
+   sudo apparmor_parser -r /etc/apparmor.d/usr.sbin.clamd
+   ```
+
+   (cestu uprav podle skutečného `validation-working-dir`)
+
 ### Ověření
 
 ```bash
