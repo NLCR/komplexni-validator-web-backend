@@ -87,6 +87,14 @@ public class Config {
             InputStream input = new FileInputStream(propertiesFile);
             Properties prop = new Properties();
             prop.load(input);
+            //Properties nechavaji koncove bile znaky jako soucast hodnoty - treba mezera
+            //za cestou k javaHome pak rozbije spousteni validatoru tezko citelnou chybou
+            for (String key : prop.stringPropertyNames()) {
+                String value = prop.getProperty(key);
+                if (value != null) {
+                    prop.setProperty(key, value.trim());
+                }
+            }
             this.validationMgrServiceUrl = prop.getProperty("validation-manager-service.url");
             this.validationMgrServiceDbUrl = prop.getProperty("validation-manager-service.db.url");
             this.validationMgrServiceDbLogin = prop.getProperty("validation-manager-service.db.login");
